@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -20,3 +21,12 @@ class DailyCheckInCreate(BaseModel):
     exercise_minutes: int = Field(default=0, ge=0)
     social_energy: int | None = Field(default=None, ge=1, le=10)
     notes: str | None = None
+
+
+class DailyCheckInResponse(DailyCheckInCreate):
+    id: int
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }

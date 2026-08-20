@@ -26,7 +26,11 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
-env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Python tooling / caches
 .pytest_cache/
@@ -39,6 +43,8 @@ htmlcov/
 # Node / React / Expo
 # --------------------
 node_modules/
+dist/
+.expo/
 
 # Build output
 dist/
