@@ -1,0 +1,93 @@
+# ============================================
+# SYMPA
+# ============================================
+
+# --------------------
+# macOS
+# --------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# --------------------
+# Environment / secrets
+# --------------------
+.env
+.env.*
+!.env.example
+
+# --------------------
+# Python
+# --------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python tooling / caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --------------------
+# Node / React / Expo
+# --------------------
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Vite
+.vite/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Expo generated native projects
+apps/mobile/android/
+apps/mobile/ios/
+
+# --------------------
+# Logs
+# --------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --------------------
+# IDE
+# --------------------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.idea/
+
+# --------------------
+# Local databases
+# --------------------
+*.db
+*.sqlite
+*.sqlite3
+
+# --------------------
+# Temporary files
+# --------------------
+*.tmp
+*.temp
+.cache/
+
+# AI assistant / agent configuration
+.claude/
+CLAUDE.md
+AGENTS.md
