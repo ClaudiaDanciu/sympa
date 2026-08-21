@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import { CheckInForm } from "./components/CheckInForm";
 
 type DailyCheckIn = {
   id: number;
@@ -17,31 +18,40 @@ type DailyCheckIn = {
 function App() {
   const [checkIn, setCheckIn] = useState<DailyCheckIn | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+
+  async function loadToday() {
+    setLoading(true);
+
+    try {
+      const timezoneOffset = -new Date().getTimezoneOffset();
+
+      const response = await fetch(
+        `http://127.0.0.1:8000/check-ins/today?timezone_offset=${timezoneOffset}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load today's check-in");
+      }
+
+      const data: DailyCheckIn | null = await response.json();
+      setCheckIn(data);
+    } catch (error) {
+      console.error("Unable to load today's check-in:", error);
+      setCheckIn(null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadToday() {
-      try {
-        const timezoneOffset = -new Date().getTimezoneOffset();
-
-        const response = await fetch(
-          `http://127.0.0.1:8000/check-ins/today?timezone_offset=${timezoneOffset}`
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load today's check-in");
-        }
-
-        const data = await response.json();
-        setCheckIn(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadToday();
+    void loadToday();
   }, []);
+
+  async function handleCheckInSaved() {
+    setShowForm(false);
+    await loadToday();
+  }
 
   return (
     <main className="app-shell">
@@ -64,7 +74,12 @@ function App() {
           </p>
         </section>
 
-        {loading ? (
+        {showForm ? (
+          <CheckInForm
+            onCancel={() => setShowForm(false)}
+            onSaved={handleCheckInSaved}
+          />
+        ) : loading ? (
           <section className="card">
             <p>Loading today...</p>
           </section>
@@ -80,24 +95,46 @@ function App() {
                 label="Movement"
                 value={`${checkIn.exercise_minutes} min`}
               />
+
+              {checkIn.social_energy !== null && (
+                <Metric
+                  label="Social energy"
+                  value={`${checkIn.social_energy}/10`}
+                />
+              )}
             </section>
 
             <section className="card note-card">
               <p className="card-label">Today's note</p>
+
               <p className="note">
                 {checkIn.notes || "No notes added today."}
               </p>
             </section>
+
+            <button
+              className="secondary-button"
+              onClick={() => setShowForm(true)}
+            >
+              Add another check-in
+            </button>
           </>
         ) : (
           <section className="card empty-state">
             <p className="card-label">No check-in yet</p>
+
             <h2>Take a minute for yourself.</h2>
+
             <p>
               Add today's check-in so SYMPA can start learning what helps you.
             </p>
 
-            <button>Check in</button>
+            <button
+              className="primary-button"
+              onClick={() => setShowForm(true)}
+            >
+              Check in
+            </button>
           </section>
         )}
       </div>
@@ -123,7 +160,7 @@ function Metric({
 function formatMood(mood: string) {
   return mood
     .split("_")
-    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
