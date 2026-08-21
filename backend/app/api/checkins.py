@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, timezone
 
 from app.core.database import get_db
 from app.db.models import DailyCheckIn
@@ -55,6 +56,45 @@ def get_check_ins(
 
     return list(db.scalars(statement).all())
 
+@router.get(
+    "/today",
+    response_model=DailyCheckInResponse | None,
+)
+def get_today_check_in(
+    timezone_offset: int = Query(
+        default=0,
+        ge=-720,
+        le=840,
+        description="Timezone offset from UTC in minutes",
+    ),
+    db: Session = Depends(get_db),
+):
+    user_timezone = timezone(timedelta(minutes=timezone_offset))
+    now_local = datetime.now(user_timezone)
+
+    start_local = now_local.replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    end_local = start_local + timedelta(days=1)
+
+    start_utc = start_local.astimezone(timezone.utc)
+    end_utc = end_local.astimezone(timezone.utc)
+
+    statement = (
+        select(DailyCheckIn)
+        .where(
+            DailyCheckIn.created_at >= start_utc,
+            DailyCheckIn.created_at < end_utc,
+        )
+        .order_by(DailyCheckIn.created_at.desc())
+        .limit(1)
+    )
+
+    return db.scalar(statement)
 
 @router.get(
     "/{check_in_id}",
