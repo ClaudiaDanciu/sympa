@@ -359,3 +359,72 @@ textarea {
     font-size: 26px;
   }
 }
+
+.history-section {
+  margin-top: 72px;
+}
+
+.section-heading {
+  margin-bottom: 24px;
+}
+
+.section-heading h2 {
+  margin: 6px 0 0;
+  font-size: 32px;
+  letter-spacing: -1px;
+}
+
+.history-list {
+  display: grid;
+  gap: 14px;
+}
+
+.history-card {
+  padding: 24px;
+  border: 1px solid #e8eaf0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.04);
+}
+
+.history-date {
+  margin-bottom: 20px;
+  color: #778093;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.history-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.history-metrics div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-metrics span {
+  color: #8a92a3;
+  font-size: 13px;
+}
+
+.history-metrics strong {
+  font-size: 20px;
+}
+
+.history-note {
+  margin: 20px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid #eef0f4;
+  color: #586174;
+  line-height: 1.6;
+}
+
+@media (max-width: 650px) {
+  .history-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
