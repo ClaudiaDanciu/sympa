@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { CheckInForm } from "./components/CheckInForm";
 import { CheckInHistory } from "./components/CheckInHistory";
+import { DayDetail } from "./components/DayDetail";
 
 type DailyCheckIn = {
   id: number;
@@ -21,6 +22,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   async function loadToday() {
     setLoading(true);
@@ -51,10 +53,10 @@ function App() {
   }, []);
 
   async function handleCheckInSaved() {
-  setShowForm(false);
-  await loadToday();
-  setHistoryVersion((version) => version + 1);
-}
+    setShowForm(false);
+    await loadToday();
+    setHistoryVersion((version) => version + 1);
+  }
 
   return (
     <main className="app-shell">
@@ -140,7 +142,17 @@ function App() {
             </button>
           </section>
         )}
-        <CheckInHistory refreshKey={historyVersion} />
+        {selectedDate ? (
+          <DayDetail
+            date={selectedDate}
+            onBack={() => setSelectedDate(null)}
+          />
+        ) : (
+          <CheckInHistory
+            refreshKey={historyVersion}
+            onSelectDay={setSelectedDate}
+          />
+        )}
       </div>
     </main>
   );
