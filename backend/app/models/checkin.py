@@ -42,6 +42,10 @@ class DailySummary(BaseModel):
     dominant_mood: str | None
     sleep_hours: float | None
 
+class DailySummaryListItem(BaseModel):
+    date: date
+    entry_count: int
+    summary: DailySummary
 
 class DailyCheckInDayResponse(BaseModel):
     date: date

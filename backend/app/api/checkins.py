@@ -12,6 +12,7 @@ from app.models.checkin import (
     DailyCheckInDayResponse,
     DailyCheckInResponse,
     DailySummary,
+    DailySummaryListItem,
 )
 
 router = APIRouter(
@@ -194,6 +195,119 @@ def get_check_ins_for_day(
         summary=summary,
         entries=entries,
     )
+
+@router.get(
+    "/days",
+    response_model=list[DailySummaryListItem],
+)
+def get_check_in_days(
+    timezone_offset: int = Query(
+        default=0,
+        ge=-720,
+        le=840,
+        description="Timezone offset from UTC in minutes",
+    ),
+    db: Session = Depends(get_db),
+) -> list[DailySummaryListItem]:
+    user_timezone = timezone(
+        timedelta(minutes=timezone_offset)
+    )
+
+    statement = select(DailyCheckIn).order_by(
+        DailyCheckIn.created_at.desc()
+    )
+
+    entries = list(db.scalars(statement).all())
+
+    grouped_entries: dict[date, list[DailyCheckIn]] = {}
+
+    for entry in entries:
+        local_datetime = entry.created_at.astimezone(
+            user_timezone
+        )
+
+        local_date = local_datetime.date()
+
+        grouped_entries.setdefault(
+            local_date,
+            [],
+        ).append(entry)
+
+    results: list[DailySummaryListItem] = []
+
+    for day, day_entries in grouped_entries.items():
+        social_values = [
+            entry.social_energy
+            for entry in day_entries
+            if entry.social_energy is not None
+        ]
+
+        mood_counts = Counter(
+            entry.mood for entry in day_entries
+        )
+
+        dominant_mood = (
+            mood_counts.most_common(1)[0][0]
+            if mood_counts
+            else None
+        )
+
+        summary = DailySummary(
+            average_energy=round(
+                sum(
+                    entry.energy
+                    for entry in day_entries
+                )
+                / len(day_entries),
+                1,
+            ),
+            average_stress=round(
+                sum(
+                    entry.stress
+                    for entry in day_entries
+                )
+                / len(day_entries),
+                1,
+            ),
+            average_focus=round(
+                sum(
+                    entry.focus
+                    for entry in day_entries
+                )
+                / len(day_entries),
+                1,
+            ),
+            average_social_energy=(
+                round(
+                    sum(social_values)
+                    / len(social_values),
+                    1,
+                )
+                if social_values
+                else None
+            ),
+            total_exercise_minutes=sum(
+                entry.exercise_minutes
+                for entry in day_entries
+            ),
+            dominant_mood=dominant_mood,
+            sleep_hours=day_entries[0].sleep_hours,
+        )
+
+        results.append(
+            DailySummaryListItem(
+                date=day,
+                entry_count=len(day_entries),
+                summary=summary,
+            )
+        )
+
+    results.sort(
+        key=lambda item: item.date,
+        reverse=True,
+    )
+
+    return results
 
 @router.get(
     "/{check_in_id}",
