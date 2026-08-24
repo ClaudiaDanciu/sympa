@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import date
+
 from enum import Enum
 
 from pydantic import BaseModel, Field
@@ -30,3 +32,19 @@ class DailyCheckInResponse(DailyCheckInCreate):
     model_config = {
         "from_attributes": True
     }
+
+class DailySummary(BaseModel):
+    average_energy: float | None
+    average_stress: float | None
+    average_focus: float | None
+    average_social_energy: float | None
+    total_exercise_minutes: int
+    dominant_mood: str | None
+    sleep_hours: float | None
+
+
+class DailyCheckInDayResponse(BaseModel):
+    date: date
+    entry_count: int
+    summary: DailySummary
+    entries: list[DailyCheckInResponse]
