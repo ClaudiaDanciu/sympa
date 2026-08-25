@@ -78,13 +78,12 @@ export function CheckInForm({
 
       <div className="form-grid">
         <NumberField
-          label="Sleep"
-          value={sleepHours}
-          min={0}
-          max={24}
-          step={0.5}
-          suffix="hours"
-          onChange={setSleepHours}
+            label="Movement since last check-in"
+            value={exerciseMinutes}
+            min={0}
+            max={300}
+            suffix="min"
+            onChange={setExerciseMinutes}
         />
 
         <NumberField
@@ -153,7 +152,7 @@ export function CheckInForm({
           rows={4}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          placeholder="Anything worth remembering about today?"
+          placeholder="What happened since your last check-in? People, food, work, movement, symptoms, events..."
         />
       </label>
 

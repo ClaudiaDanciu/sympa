@@ -2,9 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from datetime import date, datetime, time, timedelta, timezone
-from collections import Counter
-
 from app.core.database import get_db
+from app.services.checkin_summary import build_daily_summary
 from app.db.models import DailyCheckIn
 
 from app.models.checkin import (
@@ -12,7 +11,6 @@ from app.models.checkin import (
     DailyCheckInDayResponse,
     DailyCheckInResponse,
     DailyInsightResponse,
-    DailySummary,
     DailySummaryListItem,
     CrossDayPatternsResponse,
     PatternObservation,
@@ -142,55 +140,7 @@ def get_check_ins_for_day(
 
     entries = list(db.scalars(statement).all())
 
-    if not entries:
-        return DailyCheckInDayResponse(
-            date=target_date,
-            entry_count=0,
-            summary=DailySummary(
-                average_energy=None,
-                average_stress=None,
-                average_focus=None,
-                average_social_energy=None,
-                total_exercise_minutes=0,
-                dominant_mood=None,
-                sleep_hours=None,
-            ),
-            entries=[],
-        )
-
-    social_values = [
-        entry.social_energy
-        for entry in entries
-        if entry.social_energy is not None
-    ]
-
-    mood_counts = Counter(entry.mood for entry in entries)
-    dominant_mood = mood_counts.most_common(1)[0][0]
-
-    summary = DailySummary(
-        average_energy=round(
-            sum(entry.energy for entry in entries) / len(entries),
-            1,
-        ),
-        average_stress=round(
-            sum(entry.stress for entry in entries) / len(entries),
-            1,
-        ),
-        average_focus=round(
-            sum(entry.focus for entry in entries) / len(entries),
-            1,
-        ),
-        average_social_energy=(
-            round(sum(social_values) / len(social_values), 1)
-            if social_values
-            else None
-        ),
-        total_exercise_minutes=sum(
-            entry.exercise_minutes for entry in entries
-        ),
-        dominant_mood=dominant_mood,
-        sleep_hours=entries[-1].sleep_hours,
-    )
+    summary = build_daily_summary(entries)
 
     return DailyCheckInDayResponse(
         date=target_date,
@@ -239,63 +189,7 @@ def get_check_in_days(
     results: list[DailySummaryListItem] = []
 
     for day, day_entries in grouped_entries.items():
-        social_values = [
-            entry.social_energy
-            for entry in day_entries
-            if entry.social_energy is not None
-        ]
-
-        mood_counts = Counter(
-            entry.mood for entry in day_entries
-        )
-
-        dominant_mood = (
-            mood_counts.most_common(1)[0][0]
-            if mood_counts
-            else None
-        )
-
-        summary = DailySummary(
-            average_energy=round(
-                sum(
-                    entry.energy
-                    for entry in day_entries
-                )
-                / len(day_entries),
-                1,
-            ),
-            average_stress=round(
-                sum(
-                    entry.stress
-                    for entry in day_entries
-                )
-                / len(day_entries),
-                1,
-            ),
-            average_focus=round(
-                sum(
-                    entry.focus
-                    for entry in day_entries
-                )
-                / len(day_entries),
-                1,
-            ),
-            average_social_energy=(
-                round(
-                    sum(social_values)
-                    / len(social_values),
-                    1,
-                )
-                if social_values
-                else None
-            ),
-            total_exercise_minutes=sum(
-                entry.exercise_minutes
-                for entry in day_entries
-            ),
-            dominant_mood=dominant_mood,
-            sleep_hours=day_entries[0].sleep_hours,
-        )
+        summary = build_daily_summary(day_entries)
 
         results.append(
             DailySummaryListItem(
