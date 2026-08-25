@@ -107,46 +107,66 @@ export function Trends({
       </div>
 
       <div className="trend-grid">
-        <TrendCard
-          title="Energy"
-          days={days}
-          getValue={(day) =>
-            day.summary.average_energy
-          }
-          suffix="/10"
-          maxValue={10}
-        />
+  <TrendCard
+    title="Energy"
+    days={days}
+    getValue={(day) =>
+      day.summary.average_energy
+    }
+    suffix="/10"
+    maxValue={10}
+  />
 
-        <TrendCard
-          title="Stress"
-          days={days}
-          getValue={(day) =>
-            day.summary.average_stress
-          }
-          suffix="/10"
-          maxValue={10}
-        />
+  <TrendCard
+    title="Stress"
+    days={days}
+    getValue={(day) =>
+      day.summary.average_stress
+    }
+    suffix="/10"
+    maxValue={10}
+  />
 
-        <TrendCard
-          title="Focus"
-          days={days}
-          getValue={(day) =>
-            day.summary.average_focus
-          }
-          suffix="/10"
-          maxValue={10}
-        />
+  <TrendCard
+    title="Focus"
+    days={days}
+    getValue={(day) =>
+      day.summary.average_focus
+    }
+    suffix="/10"
+    maxValue={10}
+  />
 
-        <TrendCard
-          title="Sleep"
-          days={days}
-          getValue={(day) =>
-            day.summary.sleep_hours
-          }
-          suffix="h"
-          maxValue={12}
-        />
-      </div>
+  <TrendCard
+    title="Sleep"
+    days={days}
+    getValue={(day) =>
+      day.summary.sleep_hours
+    }
+    suffix=" h"
+    maxValue={12}
+  />
+
+  <TrendCard
+    title="Movement"
+    days={days}
+    getValue={(day) =>
+      day.summary.total_exercise_minutes
+    }
+    suffix=" min"
+    maxValue={180}
+  />
+
+  <TrendCard
+    title="Social energy"
+    days={days}
+    getValue={(day) =>
+      day.summary.average_social_energy
+    }
+    suffix="/10"
+    maxValue={10}
+  />
+</div>
     </section>
   );
 }
