@@ -14,6 +14,8 @@ from app.models.checkin import (
     DailyInsightResponse,
     DailySummary,
     DailySummaryListItem,
+    CrossDayPatternsResponse,
+    PatternObservation,
 )
 
 router = APIRouter(
@@ -459,6 +461,306 @@ def get_day_insights(
 
 def format_mood_for_text(mood: str) -> str:
     return mood.replace("_", " ")
+
+def calculate_correlation(
+    x_values: list[float],
+    y_values: list[float],
+) -> float | None:
+    if len(x_values) != len(y_values):
+        return None
+
+    if len(x_values) < 3:
+        return None
+
+    x_mean = sum(x_values) / len(x_values)
+    y_mean = sum(y_values) / len(y_values)
+
+    numerator = sum(
+        (x - x_mean) * (y - y_mean)
+        for x, y in zip(x_values, y_values)
+    )
+
+    x_variance = sum(
+        (x - x_mean) ** 2
+        for x in x_values
+    )
+
+    y_variance = sum(
+        (y - y_mean) ** 2
+        for y in y_values
+    )
+
+    denominator = (
+        x_variance * y_variance
+    ) ** 0.5
+
+    if denominator == 0:
+        return None
+
+    return numerator / denominator
+
+def correlation_strength(
+    correlation: float,
+) -> str:
+    absolute = abs(correlation)
+
+    if absolute >= 0.7:
+        return "strong"
+
+    if absolute >= 0.4:
+        return "moderate"
+
+    return "weak"
+
+@router.get(
+    "/patterns",
+    response_model=CrossDayPatternsResponse,
+)
+def get_cross_day_patterns(
+    timezone_offset: int = Query(
+        default=0,
+        ge=-720,
+        le=840,
+        description="Timezone offset from UTC in minutes",
+    ),
+    db: Session = Depends(get_db),
+) -> CrossDayPatternsResponse:
+    user_timezone = timezone(
+        timedelta(minutes=timezone_offset)
+    )
+
+    statement = select(DailyCheckIn).order_by(
+        DailyCheckIn.created_at.asc()
+    )
+
+    entries = list(
+        db.scalars(statement).all()
+    )
+
+    grouped_entries: dict[
+        date,
+        list[DailyCheckIn],
+    ] = {}
+
+    for entry in entries:
+        local_datetime = (
+            entry.created_at.astimezone(
+                user_timezone
+            )
+        )
+
+        local_date = local_datetime.date()
+
+        grouped_entries.setdefault(
+            local_date,
+            [],
+        ).append(entry)
+
+    days_analyzed = len(grouped_entries)
+
+    if days_analyzed < 3:
+        return CrossDayPatternsResponse(
+            days_analyzed=days_analyzed,
+            enough_data=False,
+            headline="Still learning your patterns",
+            summary=(
+                "SYMPA needs at least 3 recorded days "
+                "before it starts comparing relationships "
+                "between your daily signals."
+            ),
+            patterns=[],
+        )
+
+    sleep_values: list[float] = []
+    energy_values: list[float] = []
+    stress_values: list[float] = []
+    focus_values: list[float] = []
+    movement_values: list[float] = []
+    social_values: list[float] = []
+    social_energy_values: list[float] = []
+
+    for day_entries in grouped_entries.values():
+        average_energy = sum(
+            entry.energy
+            for entry in day_entries
+        ) / len(day_entries)
+
+        average_stress = sum(
+            entry.stress
+            for entry in day_entries
+        ) / len(day_entries)
+
+        average_focus = sum(
+            entry.focus
+            for entry in day_entries
+        ) / len(day_entries)
+
+        total_movement = sum(
+            entry.exercise_minutes
+            for entry in day_entries
+        )
+
+        # Sleep is treated as a daily value.
+        # For now we use the latest check-in's
+        # reported sleep value.
+        sleep_hours = day_entries[-1].sleep_hours
+
+        sleep_values.append(sleep_hours)
+        energy_values.append(average_energy)
+        stress_values.append(average_stress)
+        focus_values.append(average_focus)
+        movement_values.append(float(total_movement))
+
+        day_social_values = [
+            entry.social_energy
+            for entry in day_entries
+            if entry.social_energy is not None
+        ]
+
+        if day_social_values:
+            social_values.append(
+                sum(day_social_values)
+                / len(day_social_values)
+            )
+
+            social_energy_values.append(
+                average_energy
+            )
+
+    patterns: list[PatternObservation] = []
+
+    sleep_energy = calculate_correlation(
+        sleep_values,
+        energy_values,
+    )
+
+    if sleep_energy is not None:
+        if sleep_energy > 0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Sleep and energy move together",
+                    description=(
+                        "On days with more recorded sleep, "
+                        "your energy has tended to be higher."
+                    ),
+                    strength=correlation_strength(
+                        sleep_energy
+                    ),
+                )
+            )
+        elif sleep_energy < -0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Sleep and energy show an unexpected pattern",
+                    description=(
+                        "More recorded sleep has not corresponded "
+                        "with higher energy in your current data. "
+                        "More days may clarify this."
+                    ),
+                    strength=correlation_strength(
+                        sleep_energy
+                    ),
+                )
+            )
+
+    stress_focus = calculate_correlation(
+        stress_values,
+        focus_values,
+    )
+
+    if stress_focus is not None:
+        if stress_focus < -0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Stress may relate to lower focus",
+                    description=(
+                        "Higher-stress days have tended to "
+                        "coincide with lower focus."
+                    ),
+                    strength=correlation_strength(
+                        stress_focus
+                    ),
+                )
+            )
+        elif stress_focus > 0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Stress and focus move together",
+                    description=(
+                        "Your current data shows focus rising "
+                        "alongside stress on some days. "
+                        "This is worth observing over more time."
+                    ),
+                    strength=correlation_strength(
+                        stress_focus
+                    ),
+                )
+            )
+
+    movement_energy = calculate_correlation(
+        movement_values,
+        energy_values,
+    )
+
+    if movement_energy is not None:
+        if movement_energy > 0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Movement may support higher-energy days",
+                    description=(
+                        "Days with more recorded movement have "
+                        "tended to coincide with higher energy."
+                    ),
+                    strength=correlation_strength(
+                        movement_energy
+                    ),
+                )
+            )
+
+    social_energy = calculate_correlation(
+        social_values,
+        social_energy_values,
+    )
+
+    if social_energy is not None:
+        if social_energy > 0.25:
+            patterns.append(
+                PatternObservation(
+                    title="Social energy and overall energy move together",
+                    description=(
+                        "Days with higher social energy have "
+                        "also tended to be higher-energy days."
+                    ),
+                    strength=correlation_strength(
+                        social_energy
+                    ),
+                )
+            )
+
+    if not patterns:
+        headline = "No clear pattern yet"
+        summary = (
+            f"SYMPA compared {days_analyzed} recorded days, "
+            "but the current signals do not show a clear "
+            "relationship yet."
+        )
+    else:
+        headline = "Early patterns are emerging"
+        summary = (
+            f"SYMPA compared {days_analyzed} recorded days "
+            f"and found {len(patterns)} relationship"
+            f"{'s' if len(patterns) != 1 else ''} "
+            "worth watching. These are observations, "
+            "not proof of cause and effect."
+        )
+
+    return CrossDayPatternsResponse(
+        days_analyzed=days_analyzed,
+        enough_data=True,
+        headline=headline,
+        summary=summary,
+        patterns=patterns,
+    )
 
 @router.get(
     "/{check_in_id}",

@@ -58,3 +58,16 @@ class DailyInsightResponse(BaseModel):
     summary: str
     highlights: list[str]
     possible_patterns: list[str]
+
+class PatternObservation(BaseModel):
+    title: str
+    description: str
+    strength: str
+
+
+class CrossDayPatternsResponse(BaseModel):
+    days_analyzed: int
+    enough_data: bool
+    headline: str
+    summary: str
+    patterns: list[PatternObservation]
