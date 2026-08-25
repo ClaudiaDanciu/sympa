@@ -4,6 +4,7 @@ import { CheckInForm } from "./components/CheckInForm";
 import { CheckInHistory } from "./components/CheckInHistory";
 import { DayDetail } from "./components/DayDetail";
 import { Patterns } from "./components/Patterns";
+import { Trends } from "./components/Trends";
 
 type DailyCheckIn = {
   id: number;
@@ -193,6 +194,8 @@ function App() {
             )}
 
             <Patterns refreshKey={historyVersion} />
+
+            <Trends refreshKey={historyVersion} />
 
             <CheckInHistory
               refreshKey={historyVersion}

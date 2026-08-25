@@ -1,0 +1,109 @@
+.patterns-section {
+  margin-top: 80px;
+}
+
+.patterns-section .section-heading {
+  max-width: 680px;
+  margin: 0 auto 32px;
+  text-align: center;
+}
+
+.patterns-section .section-heading h2 {
+  margin: 8px 0 12px;
+  font-size: 42px;
+  letter-spacing: -1.5px;
+}
+
+.patterns-section .patterns-summary {
+  margin: 0;
+  color: #6f7889;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.patterns-section .patterns-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.patterns-section .pattern-card,
+.patterns-section .pattern-learning-card {
+  border: 1px solid #e8eaf0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.05);
+}
+
+.patterns-section .pattern-card {
+  padding: 28px;
+}
+
+.patterns-section .pattern-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.patterns-section .pattern-strength,
+.patterns-section .pattern-evidence {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.patterns-section .pattern-strength {
+  background: #f1f4f8;
+  color: #687184;
+}
+
+.patterns-section .pattern-evidence {
+  border: 1px solid #e8eaf0;
+  background: #f7f8fb;
+  color: #8a92a3;
+}
+
+.patterns-section .pattern-card h3 {
+  margin: 0 0 12px;
+  color: #172033;
+  font-size: 21px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.patterns-section .pattern-card p {
+  margin: 0;
+  color: #6f7889;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.patterns-section .pattern-learning-card {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 28px;
+  text-align: center;
+}
+
+.patterns-section .pattern-learning-card p {
+  margin: 0;
+  color: #6f7889;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .patterns-section .patterns-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .patterns-section .section-heading h2 {
+    font-size: 34px;
+  }
+}

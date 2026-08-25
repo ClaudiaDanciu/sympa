@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import "./Patterns.css";
 
 type PatternObservation = {
   title: string;
   description: string;
   strength: string;
+  evidence: string;
 };
 
 type CrossDayPatternsResponse = {
@@ -109,6 +111,10 @@ export function Patterns({
               <div className="pattern-card-top">
                 <span className="pattern-strength">
                   {formatStrength(pattern.strength)}
+                </span>
+
+                <span className="pattern-evidence">
+                  {formatStrength(pattern.evidence)} evidence
                 </span>
               </div>
 

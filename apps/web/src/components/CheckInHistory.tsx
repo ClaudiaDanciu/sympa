@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./CheckInHistory.css";
 
 type DailySummary = {
     average_energy: number | null;

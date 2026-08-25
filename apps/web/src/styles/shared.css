@@ -1,0 +1,83 @@
+.eyebrow,
+.card-label {
+  margin: 0;
+  color: #778093;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card {
+  padding: 28px;
+  border: 1px solid #e8eaf0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.05);
+}
+
+.section-heading {
+  margin-bottom: 24px;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 13px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    opacity 120ms ease,
+    background 120ms ease;
+}
+
+.primary-button {
+  border: 0;
+  background: #1f2937;
+  color: #fff;
+}
+
+.primary-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.secondary-button {
+  margin-top: 18px;
+  border: 1px solid #dde1e8;
+  background: #fff;
+  color: #172033;
+}
+
+.secondary-button:hover {
+  background: #f7f8fb;
+}
+
+.text-button {
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #687184;
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: #172033;
+}
+
+.history-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #687184;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.history-link:hover {
+  color: #172033;
+}

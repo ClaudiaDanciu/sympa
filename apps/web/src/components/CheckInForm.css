@@ -1,0 +1,125 @@
+.checkin-form {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px;
+  border: 1px solid #e8eaf0;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.06);
+}
+
+.checkin-form .form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.checkin-form .form-header h2 {
+  margin: 6px 0 0;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.checkin-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.checkin-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkin-form .field > span {
+  color: #687184;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.checkin-form .number-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 15px;
+  border: 1px solid #dde1e8;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.checkin-form .number-input:focus-within {
+  border-color: #9aa5b5;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.06);
+}
+
+.checkin-form .number-input input {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #172033;
+  font-size: 16px;
+}
+
+.checkin-form .number-input span {
+  color: #8a92a3;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.checkin-form .full-width {
+  margin-top: 20px;
+}
+
+.checkin-form select,
+.checkin-form textarea {
+  width: 100%;
+  padding: 14px 15px;
+  border: 1px solid #dde1e8;
+  border-radius: 14px;
+  outline: none;
+  background: #fff;
+  color: #172033;
+  font-size: 16px;
+}
+
+.checkin-form select:focus,
+.checkin-form textarea:focus {
+  border-color: #9aa5b5;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.06);
+}
+
+.checkin-form textarea {
+  min-height: 110px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.checkin-form .form-error {
+  margin: 18px 0 0;
+  color: #b42318;
+  font-size: 14px;
+}
+
+@media (max-width: 650px) {
+  .checkin-form {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .checkin-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .checkin-form .form-header h2 {
+    font-size: 26px;
+  }
+}

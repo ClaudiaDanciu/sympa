@@ -1,0 +1,186 @@
+.day-detail {
+  margin-top: 40px;
+}
+
+.day-detail .day-back {
+  margin-bottom: 28px;
+}
+
+.day-detail .day-detail-heading {
+  margin-bottom: 28px;
+}
+
+.day-detail .day-detail-heading h2 {
+  margin: 6px 0 8px;
+  font-size: 38px;
+  letter-spacing: -1.5px;
+}
+
+.day-detail .day-detail-heading p:last-child {
+  color: #8a92a3;
+}
+
+.day-detail .day-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.day-detail .day-metric {
+  padding: 22px;
+  border: 1px solid #e8eaf0;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.03);
+}
+
+.day-detail .day-metric span {
+  display: block;
+  margin-bottom: 10px;
+  color: #8a92a3;
+  font-size: 13px;
+}
+
+.day-detail .day-metric strong {
+  color: #172033;
+  font-size: 24px;
+}
+
+.day-detail .reflection-card {
+  margin-top: 32px;
+  padding: 32px;
+  border: 1px solid #e1e5ec;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.04);
+}
+
+.day-detail .reflection-card h3 {
+  margin: 8px 0 10px;
+  font-size: 28px;
+  letter-spacing: -0.8px;
+}
+
+.day-detail .reflection-summary {
+  max-width: 720px;
+  margin: 0;
+  color: #687184;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.day-detail .reflection-group {
+  margin-top: 26px;
+}
+
+.day-detail .reflection-label {
+  display: block;
+  margin-bottom: 10px;
+  color: #172033;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.day-detail .reflection-group ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.day-detail .reflection-group li {
+  margin: 8px 0;
+  color: #596274;
+  line-height: 1.55;
+}
+
+.day-detail .timeline-section {
+  margin-top: 56px;
+}
+
+.day-detail .timeline-section .section-heading {
+  margin-bottom: 20px;
+}
+
+.day-detail .timeline-section h3 {
+  margin: 6px 0 0;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+.day-detail .timeline-list {
+  display: grid;
+  gap: 12px;
+}
+
+.day-detail .timeline-entry {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid #e8eaf0;
+}
+
+.day-detail .timeline-time {
+  color: #8a92a3;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.day-detail .timeline-content {
+  min-width: 0;
+}
+
+.day-detail .timeline-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.day-detail .timeline-topline strong {
+  color: #172033;
+}
+
+.day-detail .timeline-topline span,
+.day-detail .timeline-secondary {
+  color: #7c8495;
+  font-size: 14px;
+}
+
+.day-detail .timeline-secondary {
+  margin-top: 8px;
+}
+
+.day-detail .timeline-note {
+  margin: 14px 0 0;
+  color: #4f5869;
+  line-height: 1.6;
+}
+
+@media (max-width: 800px) {
+  .day-detail .day-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .day-detail .timeline-entry {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .day-detail .timeline-topline {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .day-detail .day-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .day-detail .reflection-card {
+    padding: 22px;
+  }
+
+  .day-detail .day-detail-heading h2 {
+    font-size: 32px;
+  }
+}

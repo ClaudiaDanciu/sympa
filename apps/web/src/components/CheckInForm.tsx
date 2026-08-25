@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import "./CheckInForm.css";
 
 type CheckInFormProps = {
   onSaved: () => void;
