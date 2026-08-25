@@ -21,6 +21,14 @@ type TrendsProps = {
   refreshKey: number;
 };
 
+type TrendCardProps = {
+  title: string;
+  days: DailySummaryItem[];
+  getValue: (day: DailySummaryItem) => number | null;
+  suffix: string;
+  maxValue: number;
+};
+
 export function Trends({
   refreshKey,
 }: TrendsProps) {
@@ -50,10 +58,7 @@ export function Trends({
 
         setDays(data.slice(0, 7).reverse());
       } catch (error) {
-        console.error(
-          "Unable to load trends:",
-          error
-        );
+        console.error("Unable to load trends:", error);
 
         setError(true);
         setDays([]);
@@ -109,6 +114,7 @@ export function Trends({
             day.summary.average_energy
           }
           suffix="/10"
+          maxValue={10}
         />
 
         <TrendCard
@@ -118,6 +124,7 @@ export function Trends({
             day.summary.average_stress
           }
           suffix="/10"
+          maxValue={10}
         />
 
         <TrendCard
@@ -127,6 +134,7 @@ export function Trends({
             day.summary.average_focus
           }
           suffix="/10"
+          maxValue={10}
         />
 
         <TrendCard
@@ -136,26 +144,19 @@ export function Trends({
             day.summary.sleep_hours
           }
           suffix="h"
+          maxValue={12}
         />
       </div>
     </section>
   );
 }
 
-type TrendCardProps = {
-  title: string;
-  days: DailySummaryItem[];
-  getValue: (
-    day: DailySummaryItem
-  ) => number | null;
-  suffix: string;
-};
-
 function TrendCard({
   title,
   days,
   getValue,
   suffix,
+  maxValue,
 }: TrendCardProps) {
   return (
     <article className="trend-card">
@@ -165,20 +166,46 @@ function TrendCard({
         {days.map((day) => {
           const value = getValue(day);
 
+          const percentage =
+            value === null
+              ? 0
+              : Math.min(
+                  Math.max((value / maxValue) * 100, 0),
+                  100
+                );
+
           return (
             <div
-              className="trend-value"
+              className="trend-row"
               key={day.date}
             >
-              <span>
-                {formatShortDate(day.date)}
-              </span>
+              <div className="trend-row-top">
+                <span>
+                  {formatShortDate(day.date)}
+                </span>
 
-              <strong>
-                {value !== null
-                  ? `${formatValue(value)}${suffix}`
-                  : "—"}
-              </strong>
+                <strong>
+                  {value !== null
+                    ? `${formatValue(value)}${suffix}`
+                    : "—"}
+                </strong>
+              </div>
+
+              <div
+                className="trend-track"
+                role="progressbar"
+                aria-label={`${title} on ${formatShortDate(day.date)}`}
+                aria-valuemin={0}
+                aria-valuemax={maxValue}
+                aria-valuenow={value ?? 0}
+              >
+                <div
+                  className="trend-fill"
+                  style={{
+                    width: `${percentage}%`,
+                  }}
+                />
+              </div>
             </div>
           );
         })}
@@ -194,13 +221,8 @@ function formatValue(value: number) {
 }
 
 function formatShortDate(date: string) {
-  return new Intl.DateTimeFormat(
-    undefined,
-    {
-      month: "short",
-      day: "numeric",
-    }
-  ).format(
-    new Date(`${date}T12:00:00`)
-  );
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${date}T12:00:00`));
 }
