@@ -3,6 +3,7 @@ import "./App.css";
 import { CheckInForm } from "./components/CheckInForm";
 import { CheckInHistory } from "./components/CheckInHistory";
 import { DayDetail } from "./components/DayDetail";
+import { Patterns } from "./components/Patterns";
 
 type DailyCheckIn = {
   id: number;
@@ -148,10 +149,14 @@ function App() {
             onBack={() => setSelectedDate(null)}
           />
         ) : (
-          <CheckInHistory
-            refreshKey={historyVersion}
-            onSelectDay={setSelectedDate}
-          />
+          <>
+            <Patterns refreshKey={historyVersion} />
+
+            <CheckInHistory
+              refreshKey={historyVersion}
+              onSelectDay={setSelectedDate}
+            />
+          </>
         )}
       </div>
     </main>
