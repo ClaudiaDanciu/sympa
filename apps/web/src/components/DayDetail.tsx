@@ -30,6 +30,13 @@ type DailyCheckInDayResponse = {
   entries: DailyCheckIn[];
 };
 
+type DailyInsight = {
+  headline: string;
+  summary: string;
+  highlights: string[];
+  possible_patterns: string[];
+};
+
 type DayDetailProps = {
   date: string;
   onBack: () => void;
@@ -39,7 +46,12 @@ export function DayDetail({
   date,
   onBack,
 }: DayDetailProps) {
-  const [day, setDay] = useState<DailyCheckInDayResponse | null>(null);
+  const [day, setDay] =
+    useState<DailyCheckInDayResponse | null>(null);
+
+  const [insight, setInsight] =
+    useState<DailyInsight | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,20 +59,40 @@ export function DayDetail({
       setLoading(true);
 
       try {
-        const timezoneOffset = -new Date().getTimezoneOffset();
+        const timezoneOffset =
+          -new Date().getTimezoneOffset();
 
-        const response = await fetch(
-          `http://127.0.0.1:8000/check-ins/day?date=${date}&timezone_offset=${timezoneOffset}`
-        );
+        const [dayResponse, insightResponse] =
+          await Promise.all([
+            fetch(
+              `http://127.0.0.1:8000/check-ins/day?date=${date}&timezone_offset=${timezoneOffset}`
+            ),
+            fetch(
+              `http://127.0.0.1:8000/check-ins/day/insights?date=${date}&timezone_offset=${timezoneOffset}`
+            ),
+          ]);
 
-        if (!response.ok) {
+        if (!dayResponse.ok) {
           throw new Error("Unable to load day");
         }
 
-        const data: DailyCheckInDayResponse = await response.json();
-        setDay(data);
+        const dayData: DailyCheckInDayResponse =
+          await dayResponse.json();
+
+        setDay(dayData);
+
+        if (insightResponse.ok) {
+          const insightData: DailyInsight =
+            await insightResponse.json();
+
+          setInsight(insightData);
+        } else {
+          setInsight(null);
+        }
       } catch (error) {
         console.error("Unable to load day:", error);
+        setDay(null);
+        setInsight(null);
       } finally {
         setLoading(false);
       }
@@ -80,9 +112,14 @@ export function DayDetail({
   if (!day) {
     return (
       <section className="day-detail">
-        <button className="history-link" onClick={onBack}>
+        <button
+          type="button"
+          className="history-link"
+          onClick={onBack}
+        >
           ← Back
         </button>
+
         <p>Unable to load this day.</p>
       </section>
     );
@@ -90,16 +127,25 @@ export function DayDetail({
 
   return (
     <section className="day-detail">
-      <button className="history-link day-back" onClick={onBack}>
+      <button
+        type="button"
+        className="history-link day-back"
+        onClick={onBack}
+      >
         ← Back to history
       </button>
 
       <div className="day-detail-heading">
         <p className="eyebrow">Daily summary</p>
+
         <h2>{formatDay(day.date)}</h2>
+
         <p>
           {day.entry_count}{" "}
-          {day.entry_count === 1 ? "check-in" : "check-ins"} recorded
+          {day.entry_count === 1
+            ? "check-in"
+            : "check-ins"}{" "}
+          recorded
         </p>
       </div>
 
@@ -115,17 +161,23 @@ export function DayDetail({
 
         <DayMetric
           label="Energy"
-          value={formatScore(day.summary.average_energy)}
+          value={formatScore(
+            day.summary.average_energy
+          )}
         />
 
         <DayMetric
           label="Stress"
-          value={formatScore(day.summary.average_stress)}
+          value={formatScore(
+            day.summary.average_stress
+          )}
         />
 
         <DayMetric
           label="Focus"
-          value={formatScore(day.summary.average_focus)}
+          value={formatScore(
+            day.summary.average_focus
+          )}
         />
 
         <DayMetric
@@ -144,9 +196,59 @@ export function DayDetail({
 
         <DayMetric
           label="Social energy"
-          value={formatScore(day.summary.average_social_energy)}
+          value={formatScore(
+            day.summary.average_social_energy
+          )}
         />
       </div>
+
+      {insight && (
+        <section className="reflection-card">
+          <p className="eyebrow">SYMPA reflection</p>
+
+          <h3>{insight.headline}</h3>
+
+          <p className="reflection-summary">
+            {insight.summary}
+          </p>
+
+          {insight.highlights.length > 0 && (
+            <div className="reflection-group">
+              <span className="reflection-label">
+                What stood out
+              </span>
+
+              <ul>
+                {insight.highlights.map(
+                  (highlight) => (
+                    <li key={highlight}>
+                      {highlight}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+          )}
+
+          {insight.possible_patterns.length > 0 && (
+            <div className="reflection-group">
+              <span className="reflection-label">
+                Worth noticing
+              </span>
+
+              <ul>
+                {insight.possible_patterns.map(
+                  (pattern) => (
+                    <li key={pattern}>
+                      {pattern}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="timeline-section">
         <div className="section-heading">
@@ -156,16 +258,23 @@ export function DayDetail({
 
         <div className="timeline-list">
           {day.entries.map((entry) => (
-            <article className="timeline-entry" key={entry.id}>
+            <article
+              className="timeline-entry"
+              key={entry.id}
+            >
               <div className="timeline-time">
                 {formatTime(entry.created_at)}
               </div>
 
               <div className="timeline-content">
                 <div className="timeline-topline">
-                  <strong>{formatMood(entry.mood)}</strong>
+                  <strong>
+                    {formatMood(entry.mood)}
+                  </strong>
+
                   <span>
-                    Energy {entry.energy}/10 · Stress {entry.stress}/10
+                    Energy {entry.energy}/10 · Stress{" "}
+                    {entry.stress}/10
                   </span>
                 </div>
 
@@ -174,11 +283,14 @@ export function DayDetail({
                   {entry.social_energy !== null
                     ? `${entry.social_energy}/10`
                     : "—"}{" "}
-                  · Movement {entry.exercise_minutes} min
+                  · Movement{" "}
+                  {entry.exercise_minutes} min
                 </div>
 
                 {entry.notes && (
-                  <p className="timeline-note">{entry.notes}</p>
+                  <p className="timeline-note">
+                    {entry.notes}
+                  </p>
                 )}
               </div>
             </article>
@@ -211,7 +323,11 @@ function formatScore(value: number | null) {
 function formatMood(mood: string) {
   return mood
     .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(
+      (word) =>
+        word.charAt(0).toUpperCase() +
+        word.slice(1)
+    )
     .join(" ");
 }
 

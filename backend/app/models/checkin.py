@@ -52,3 +52,9 @@ class DailyCheckInDayResponse(BaseModel):
     entry_count: int
     summary: DailySummary
     entries: list[DailyCheckInResponse]
+
+class DailyInsightResponse(BaseModel):
+    headline: str
+    summary: str
+    highlights: list[str]
+    possible_patterns: list[str]

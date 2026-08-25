@@ -11,6 +11,7 @@ from app.models.checkin import (
     DailyCheckInCreate,
     DailyCheckInDayResponse,
     DailyCheckInResponse,
+    DailyInsightResponse,
     DailySummary,
     DailySummaryListItem,
 )
@@ -308,6 +309,156 @@ def get_check_in_days(
     )
 
     return results
+
+@router.get(
+    "/day/insights",
+    response_model=DailyInsightResponse,
+)
+def get_day_insights(
+    target_date: date = Query(alias="date"),
+    timezone_offset: int = Query(
+        default=0,
+        ge=-720,
+        le=840,
+        description="Timezone offset from UTC in minutes",
+    ),
+    db: Session = Depends(get_db),
+) -> DailyInsightResponse:
+    user_timezone = timezone(timedelta(minutes=timezone_offset))
+
+    start_local = datetime.combine(
+        target_date,
+        time.min,
+        tzinfo=user_timezone,
+    )
+
+    end_local = start_local + timedelta(days=1)
+
+    start_utc = start_local.astimezone(timezone.utc)
+    end_utc = end_local.astimezone(timezone.utc)
+
+    statement = (
+        select(DailyCheckIn)
+        .where(
+            DailyCheckIn.created_at >= start_utc,
+            DailyCheckIn.created_at < end_utc,
+        )
+        .order_by(DailyCheckIn.created_at.asc())
+    )
+
+    entries = list(db.scalars(statement).all())
+
+    if not entries:
+        return DailyInsightResponse(
+            headline="No data yet",
+            summary="There are no check-ins recorded for this day.",
+            highlights=[],
+            possible_patterns=[],
+        )
+
+    highlights: list[str] = []
+    possible_patterns: list[str] = []
+
+    energies = [entry.energy for entry in entries]
+    stresses = [entry.stress for entry in entries]
+    focuses = [entry.focus for entry in entries]
+    moods = [entry.mood for entry in entries]
+
+    average_energy = sum(energies) / len(energies)
+    average_stress = sum(stresses) / len(stresses)
+    average_focus = sum(focuses) / len(focuses)
+
+    if max(energies) - min(energies) <= 1:
+        highlights.append(
+            f"Energy stayed fairly stable around {round(average_energy, 1)}/10."
+        )
+    else:
+        highlights.append(
+            f"Energy varied from {min(energies)}/10 to {max(energies)}/10."
+        )
+
+    if average_stress <= 3:
+        highlights.append("Stress stayed relatively low.")
+    elif average_stress >= 7:
+        highlights.append("Stress was elevated across the day.")
+    else:
+        highlights.append(
+            f"Stress stayed around a moderate {round(average_stress, 1)}/10."
+        )
+
+    if average_focus >= 7:
+        highlights.append("Focus was strong overall.")
+    elif average_focus <= 4:
+        highlights.append("Focus was relatively low overall.")
+
+    if len(set(moods)) == 1:
+        highlights.append(
+            f"Mood stayed consistently {format_mood_for_text(moods[0])}."
+        )
+    else:
+        possible_patterns.append(
+            "Mood changed during the day, which may be useful to compare with activities, people, meals, sleep, or events."
+        )
+
+    if len(entries) >= 2:
+        first = entries[0]
+        last = entries[-1]
+
+        if last.energy >= first.energy + 2:
+            possible_patterns.append(
+                "Energy improved meaningfully from the first check-in to the last."
+            )
+        elif last.energy <= first.energy - 2:
+            possible_patterns.append(
+                "Energy declined meaningfully over the course of the day."
+            )
+
+        if last.stress <= first.stress - 2:
+            possible_patterns.append(
+                "Stress decreased noticeably during the day."
+            )
+        elif last.stress >= first.stress + 2:
+            possible_patterns.append(
+                "Stress increased noticeably during the day."
+            )
+
+    movement_total = sum(entry.exercise_minutes for entry in entries)
+
+    if movement_total > 0:
+        highlights.append(
+            f"You recorded {movement_total} minutes of movement."
+        )
+
+    if len(entries) == 1:
+        headline = "A first snapshot"
+        summary = (
+            "This day has one check-in so far. SYMPA can describe the moment, "
+            "but it needs more observations before identifying how the day changed."
+        )
+    elif max(energies) - min(energies) <= 1 and max(stresses) - min(stresses) <= 1:
+        headline = "A steady day"
+        summary = (
+            "Your recorded energy and stress stayed relatively stable across "
+            f"{len(entries)} check-ins."
+        )
+    else:
+        headline = "A changing day"
+        summary = (
+            "Your check-ins show meaningful variation during the day. "
+            "These shifts become more useful when compared with context such as "
+            "sleep, movement, meals, social interactions, and events."
+        )
+
+    return DailyInsightResponse(
+        headline=headline,
+        summary=summary,
+        highlights=highlights,
+        possible_patterns=possible_patterns,
+    )
+
+
+def format_mood_for_text(mood: str) -> str:
+    return mood.replace("_", " ")
 
 @router.get(
     "/{check_in_id}",
