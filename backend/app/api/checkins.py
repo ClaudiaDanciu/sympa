@@ -499,6 +499,15 @@ def calculate_correlation(
 
     return numerator / denominator
 
+def evidence_level(days_analyzed: int) -> str:
+    if days_analyzed >= 14:
+        return "higher"
+
+    if days_analyzed >= 7:
+        return "growing"
+
+    return "early"
+
 def correlation_strength(
     correlation: float,
 ) -> str:
@@ -646,6 +655,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         sleep_energy
                     ),
+                    evidence=evidence_level(days_analyzed),
                 )
             )
         elif sleep_energy < -0.25:
@@ -660,6 +670,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         sleep_energy
                     ),
+                    evidence=evidence_level(days_analyzed),
                 )
             )
 
@@ -680,6 +691,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         stress_focus
                     ),
+                    evidence=evidence_level(days_analyzed),
                 )
             )
         elif stress_focus > 0.25:
@@ -694,6 +706,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         stress_focus
                     ),
+                    evidence=evidence_level(days_analyzed)
                 )
             )
 
@@ -714,6 +727,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         movement_energy
                     ),
+                    evidence=evidence_level(days_analyzed),
                 )
             )
 
@@ -734,6 +748,7 @@ def get_cross_day_patterns(
                     strength=correlation_strength(
                         social_energy
                     ),
+                    evidence=evidence_level(days_analyzed),
                 )
             )
 

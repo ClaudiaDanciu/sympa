@@ -55,8 +55,19 @@ function App() {
 
   async function handleCheckInSaved() {
     setShowForm(false);
+
     await loadToday();
+
     setHistoryVersion((version) => version + 1);
+  }
+
+  function handleSelectDay(date: string) {
+    setShowForm(false);
+    setSelectedDate(date);
+  }
+
+  function handleBackToHistory() {
+    setSelectedDate(null);
   }
 
   return (
@@ -65,96 +76,127 @@ function App() {
         <header className="header">
           <div>
             <div className="brand">sympa.</div>
-            <p className="subtitle">Your personal intelligence companion</p>
+
+            <p className="subtitle">
+              Your personal intelligence companion
+            </p>
           </div>
 
           <div className="avatar">S</div>
         </header>
 
-        <section className="hero">
-          <p className="eyebrow">Today</p>
-          <h1>How are you feeling?</h1>
-          <p>
-            Build awareness of the patterns that help you feel and perform
-            better.
-          </p>
-        </section>
-
-        {showForm ? (
-          <CheckInForm
-            onCancel={() => setShowForm(false)}
-            onSaved={handleCheckInSaved}
-          />
-        ) : loading ? (
-          <section className="card">
-            <p>Loading today...</p>
-          </section>
-        ) : checkIn ? (
-          <>
-            <section className="metrics">
-              <Metric label="Sleep" value={`${checkIn.sleep_hours} h`} />
-              <Metric label="Energy" value={`${checkIn.energy}/10`} />
-              <Metric label="Mood" value={formatMood(checkIn.mood)} />
-              <Metric label="Stress" value={`${checkIn.stress}/10`} />
-              <Metric label="Focus" value={`${checkIn.focus}/10`} />
-              <Metric
-                label="Movement"
-                value={`${checkIn.exercise_minutes} min`}
-              />
-
-              {checkIn.social_energy !== null && (
-                <Metric
-                  label="Social energy"
-                  value={`${checkIn.social_energy}/10`}
-                />
-              )}
-            </section>
-
-            <section className="card note-card">
-              <p className="card-label">Today's note</p>
-
-              <p className="note">
-                {checkIn.notes || "No notes added today."}
-              </p>
-            </section>
-
-            <button
-              className="secondary-button"
-              onClick={() => setShowForm(true)}
-            >
-              Add another check-in
-            </button>
-          </>
-        ) : (
-          <section className="card empty-state">
-            <p className="card-label">No check-in yet</p>
-
-            <h2>Take a minute for yourself.</h2>
-
-            <p>
-              Add today's check-in so SYMPA can start learning what helps you.
-            </p>
-
-            <button
-              className="primary-button"
-              onClick={() => setShowForm(true)}
-            >
-              Check in
-            </button>
-          </section>
-        )}
         {selectedDate ? (
           <DayDetail
             date={selectedDate}
-            onBack={() => setSelectedDate(null)}
+            onBack={handleBackToHistory}
           />
         ) : (
           <>
+            <section className="hero">
+              <p className="eyebrow">Today</p>
+
+              <h1>How are you feeling?</h1>
+
+              <p>
+                Build awareness of the patterns that help you feel and perform
+                better.
+              </p>
+            </section>
+
+            {showForm ? (
+              <CheckInForm
+                onCancel={() => setShowForm(false)}
+                onSaved={handleCheckInSaved}
+              />
+            ) : loading ? (
+              <section className="card">
+                <p>Loading today...</p>
+              </section>
+            ) : checkIn ? (
+              <>
+                <section className="metrics">
+                  <Metric
+                    label="Sleep"
+                    value={`${checkIn.sleep_hours} h`}
+                  />
+
+                  <Metric
+                    label="Energy"
+                    value={`${checkIn.energy}/10`}
+                  />
+
+                  <Metric
+                    label="Mood"
+                    value={formatMood(checkIn.mood)}
+                  />
+
+                  <Metric
+                    label="Stress"
+                    value={`${checkIn.stress}/10`}
+                  />
+
+                  <Metric
+                    label="Focus"
+                    value={`${checkIn.focus}/10`}
+                  />
+
+                  <Metric
+                    label="Movement"
+                    value={`${checkIn.exercise_minutes} min`}
+                  />
+
+                  {checkIn.social_energy !== null && (
+                    <Metric
+                      label="Social energy"
+                      value={`${checkIn.social_energy}/10`}
+                    />
+                  )}
+                </section>
+
+                <section className="card note-card">
+                  <p className="card-label">Today's note</p>
+
+                  <p className="note">
+                    {checkIn.notes || "No notes added today."}
+                  </p>
+                </section>
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => setShowForm(true)}
+                >
+                  Add another check-in
+                </button>
+              </>
+            ) : (
+              <section className="card empty-state">
+                <p className="card-label">
+                  No check-in yet
+                </p>
+
+                <h2>Take a minute for yourself.</h2>
+
+                <p>
+                  Add today's check-in so SYMPA can start learning what helps
+                  you.
+                </p>
+
+                <button
+                  type="button"
+                  className="primary-button"
+                  onClick={() => setShowForm(true)}
+                >
+                  Check in
+                </button>
+              </section>
+            )}
+
             <Patterns refreshKey={historyVersion} />
 
             <CheckInHistory
               refreshKey={historyVersion}
-              onSelectDay={setSelectedDate}
+              onSelectDay={handleSelectDay}
             />
           </>
         )}
@@ -181,7 +223,11 @@ function Metric({
 function formatMood(mood: string) {
   return mood
     .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .map(
+      (word) =>
+        word.charAt(0).toUpperCase() +
+        word.slice(1)
+    )
     .join(" ");
 }
 
