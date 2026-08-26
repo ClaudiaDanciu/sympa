@@ -15,7 +15,6 @@ class Mood(str, Enum):
 
 
 class DailyCheckInCreate(BaseModel):
-    sleep_hours: float = Field(ge=0, le=24)
     energy: int = Field(ge=1, le=10)
     mood: Mood
     stress: int = Field(ge=1, le=10)
@@ -27,10 +26,11 @@ class DailyCheckInCreate(BaseModel):
 
 class DailyCheckInResponse(DailyCheckInCreate):
     id: int
+    sleep_hours: float | None = None
     created_at: datetime
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True,
     }
 
 class DailySummary(BaseModel):
@@ -63,6 +63,7 @@ class PatternObservation(BaseModel):
     title: str
     description: str
     strength: str
+    evidence: str
 
 
 class CrossDayPatternsResponse(BaseModel):

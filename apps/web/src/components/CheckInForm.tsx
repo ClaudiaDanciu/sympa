@@ -10,7 +10,6 @@ export function CheckInForm({
   onSaved,
   onCancel,
 }: CheckInFormProps) {
-  const [sleepHours, setSleepHours] = useState(7);
   const [energy, setEnergy] = useState(5);
   const [mood, setMood] = useState("neutral");
   const [stress, setStress] = useState(5);
@@ -34,7 +33,6 @@ export function CheckInForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          sleep_hours: sleepHours,
           energy,
           mood,
           stress,
@@ -111,15 +109,6 @@ export function CheckInForm({
           max={10}
           suffix="/ 10"
           onChange={setFocus}
-        />
-
-        <NumberField
-          label="Exercise"
-          value={exerciseMinutes}
-          min={0}
-          max={300}
-          suffix="min"
-          onChange={setExerciseMinutes}
         />
 
         <NumberField

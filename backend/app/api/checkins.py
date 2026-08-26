@@ -32,7 +32,6 @@ def create_check_in(
     db: Session = Depends(get_db),
 ) -> DailyCheckIn:
     db_check_in = DailyCheckIn(
-        sleep_hours=check_in.sleep_hours,
         energy=check_in.energy,
         mood=check_in.mood.value,
         stress=check_in.stress,
