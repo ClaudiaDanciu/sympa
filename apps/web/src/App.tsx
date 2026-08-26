@@ -5,6 +5,7 @@ import { CheckInHistory } from "./components/CheckInHistory";
 import { DayDetail } from "./components/DayDetail";
 import { Patterns } from "./components/Patterns";
 import { Trends } from "./components/Trends";
+import { DailyContextCard } from "./components/DailyContextCard";
 
 type DailyCheckIn = {
   id: number;
@@ -104,6 +105,8 @@ function App() {
               </p>
             </section>
 
+            <DailyContextCard refreshKey={historyVersion} />
+            
             {showForm ? (
               <CheckInForm
                 onCancel={() => setShowForm(false)}
