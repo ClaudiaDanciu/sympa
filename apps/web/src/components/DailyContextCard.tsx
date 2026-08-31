@@ -1,122 +1,25 @@
-import { useEffect, useState } from "react";
+import type { DailyContextData } from "./DailyContext";
 import "./DailyContextCard.css";
 
-type DailyContext = {
-  id: number;
-  context_date: string;
-  sleep_hours: number | null;
-  created_at: string;
-  updated_at: string;
-};
-
 type DailyContextCardProps = {
-  refreshKey: number;
+  context: DailyContextData | null;
+  sleepHours: number;
+  loading: boolean;
+  saving: boolean;
+  error: string | null;
+  onSleepHoursChange: (value: number) => void;
+  onSave: () => void;
 };
 
 export function DailyContextCard({
-  refreshKey,
+  context,
+  sleepHours,
+  loading,
+  saving,
+  error,
+  onSleepHoursChange,
+  onSave,
 }: DailyContextCardProps) {
-  const [context, setContext] =
-    useState<DailyContext | null>(null);
-
-  const [sleepHours, setSleepHours] =
-    useState<number>(7);
-
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] =
-    useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadContext() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const timezoneOffset =
-          -new Date().getTimezoneOffset();
-
-        const response = await fetch(
-          `http://127.0.0.1:8000/daily-contexts/today?timezone_offset=${timezoneOffset}`
-        );
-
-        if (!response.ok) {
-          throw new Error(
-            "Unable to load today's context"
-          );
-        }
-
-        const data: DailyContext | null =
-          await response.json();
-
-        setContext(data);
-
-        if (data?.sleep_hours !== null &&
-            data?.sleep_hours !== undefined) {
-          setSleepHours(data.sleep_hours);
-        }
-      } catch (error) {
-        console.error(
-          "Unable to load daily context:",
-          error
-        );
-
-        setError(
-          "Unable to load today's sleep."
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    void loadContext();
-  }, [refreshKey]);
-
-  async function saveSleep() {
-    setSaving(true);
-    setError(null);
-
-    try {
-      const timezoneOffset =
-        -new Date().getTimezoneOffset();
-
-      const response = await fetch(
-        `http://127.0.0.1:8000/daily-contexts/today?timezone_offset=${timezoneOffset}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            sleep_hours: sleepHours,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Unable to save today's sleep"
-        );
-      }
-
-      const data: DailyContext =
-        await response.json();
-
-      setContext(data);
-    } catch (error) {
-      console.error(
-        "Unable to save daily context:",
-        error
-      );
-
-      setError(
-        "Unable to save sleep. Please try again."
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
   if (loading) {
     return (
       <section className="daily-context-card">
@@ -160,7 +63,7 @@ export function DailyContextCard({
               step={0.5}
               value={sleepHours}
               onChange={(event) =>
-                setSleepHours(
+                onSleepHoursChange(
                   Number(event.target.value)
                 )
               }
@@ -173,7 +76,7 @@ export function DailyContextCard({
         <button
           type="button"
           className="primary-button"
-          onClick={saveSleep}
+          onClick={onSave}
           disabled={saving}
         >
           {saving

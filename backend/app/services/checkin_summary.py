@@ -6,6 +6,7 @@ from app.models.checkin import DailySummary
 
 def build_daily_summary(
     entries: list[DailyCheckIn],
+    sleep_hours: float | None = None,
 ) -> DailySummary:
     if not entries:
         return DailySummary(
@@ -15,7 +16,7 @@ def build_daily_summary(
             average_social_energy=None,
             total_exercise_minutes=0,
             dominant_mood=None,
-            sleep_hours=None,
+            sleep_hours=sleep_hours,
         )
 
     ordered_entries = sorted(
@@ -42,35 +43,22 @@ def build_daily_summary(
 
     return DailySummary(
         average_energy=round(
-            sum(
-                entry.energy
-                for entry in ordered_entries
-            )
+            sum(entry.energy for entry in ordered_entries)
             / len(ordered_entries),
             1,
         ),
         average_stress=round(
-            sum(
-                entry.stress
-                for entry in ordered_entries
-            )
+            sum(entry.stress for entry in ordered_entries)
             / len(ordered_entries),
             1,
         ),
         average_focus=round(
-            sum(
-                entry.focus
-                for entry in ordered_entries
-            )
+            sum(entry.focus for entry in ordered_entries)
             / len(ordered_entries),
             1,
         ),
         average_social_energy=(
-            round(
-                sum(social_values)
-                / len(social_values),
-                1,
-            )
+            round(sum(social_values) / len(social_values), 1)
             if social_values
             else None
         ),
@@ -79,5 +67,5 @@ def build_daily_summary(
             for entry in ordered_entries
         ),
         dominant_mood=dominant_mood,
-        sleep_hours=ordered_entries[-1].sleep_hours,
+        sleep_hours=sleep_hours,
     )

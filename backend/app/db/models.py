@@ -47,10 +47,6 @@ class DailyCheckIn(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    # Keep this temporarily so the existing API and data
-    # continue to work while we migrate sleep into DailyContext.
-    sleep_hours: Mapped[float] = mapped_column(Float)
-
     energy: Mapped[int] = mapped_column(Integer)
     mood: Mapped[str] = mapped_column(String(20))
     stress: Mapped[int] = mapped_column(Integer)

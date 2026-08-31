@@ -26,7 +26,6 @@ class DailyCheckInCreate(BaseModel):
 
 class DailyCheckInResponse(DailyCheckInCreate):
     id: int
-    sleep_hours: float | None = None
     created_at: datetime
 
     model_config = {

@@ -1,0 +1,100 @@
+.daily-context-card {
+  margin-bottom: 24px;
+  padding: 28px;
+  border: 1px solid #e8eaf0;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 40px rgba(31, 42, 68, 0.04);
+}
+
+.daily-context-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.daily-context-header h2 {
+  margin: 6px 0 0;
+  color: #172033;
+  font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+.daily-context-value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+.daily-context-value strong {
+  color: #172033;
+  font-size: 36px;
+  line-height: 1;
+}
+
+.daily-context-value span {
+  color: #8a92a3;
+  font-size: 15px;
+}
+
+.daily-context-form {
+  margin-top: 24px;
+}
+
+.daily-context-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 300px;
+}
+
+.daily-context-field > span {
+  color: #687184;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.daily-context-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 15px;
+  border: 1px solid #dde1e8;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.daily-context-input:focus-within {
+  border-color: #9aa5b5;
+  box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.06);
+}
+
+.daily-context-input input {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #172033;
+  font-size: 16px;
+}
+
+.daily-context-input span {
+  color: #8a92a3;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.daily-context-form .primary-button {
+  margin-top: 20px;
+}
+
+@media (max-width: 650px) {
+  .daily-context-card {
+    padding: 22px;
+  }
+}

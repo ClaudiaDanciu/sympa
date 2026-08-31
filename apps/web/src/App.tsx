@@ -5,11 +5,10 @@ import { CheckInHistory } from "./components/CheckInHistory";
 import { DayDetail } from "./components/DayDetail";
 import { Patterns } from "./components/Patterns";
 import { Trends } from "./components/Trends";
-import { DailyContextCard } from "./components/DailyContextCard";
+import { DailyContext } from "./components/DailyContext";
 
 type DailyCheckIn = {
   id: number;
-  sleep_hours: number;
   energy: number;
   mood: string;
   stress: number;
@@ -105,7 +104,8 @@ function App() {
               </p>
             </section>
 
-            <DailyContextCard refreshKey={historyVersion} />
+
+            <DailyContext refreshKey={historyVersion} />
             
             {showForm ? (
               <CheckInForm
@@ -119,10 +119,6 @@ function App() {
             ) : checkIn ? (
               <>
                 <section className="metrics">
-                  <Metric
-                    label="Sleep"
-                    value={`${checkIn.sleep_hours} h`}
-                  />
 
                   <Metric
                     label="Energy"
