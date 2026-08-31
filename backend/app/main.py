@@ -5,6 +5,7 @@ from app.api.checkins import router as checkins_router
 from app.api.daily_contexts import router as daily_contexts_router
 from app.core.database import Base, engine
 from app.db import models
+from app.api.calendar import router as calendar_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,7 +27,7 @@ app.add_middleware(
 
 app.include_router(checkins_router)
 app.include_router(daily_contexts_router)
-
+app.include_router(calendar_router)
 
 @app.get("/health")
 def health_check() -> dict[str, str]:
