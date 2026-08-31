@@ -6,6 +6,7 @@ import { DayDetail } from "./components/DayDetail";
 import { Patterns } from "./components/Patterns";
 import { Trends } from "./components/Trends";
 import { DailyContext } from "./components/DailyContext";
+import { CalendarToday } from "./components/CalendarToday";
 
 type DailyCheckIn = {
   id: number;
@@ -106,7 +107,7 @@ function App() {
 
 
             <DailyContext refreshKey={historyVersion} />
-            
+            <CalendarToday />
             {showForm ? (
               <CheckInForm
                 onCancel={() => setShowForm(false)}
