@@ -5,13 +5,13 @@ const API = "http://127.0.0.1:8000";
 
 type TimelineItem = {
   type:
-      | "calendar_event"
-      | "check_in"
-      | "sleep"
-      | "symptom"
-      | "meal"
-      | "medication"
-      | string;  
+    | "calendar_event"
+    | "check_in"
+    | "sleep"
+    | "symptom"
+    | "meal"
+    | "medication"
+    | string;
   occurred_at: string;
   title: string;
   detail: string | null;
@@ -50,16 +50,22 @@ function typeLabel(type: string) {
   switch (type) {
     case "calendar_event":
       return "Calendar";
+
     case "check_in":
       return "Check-in";
+
     case "sleep":
       return "Sleep";
+
     case "symptom":
       return "Symptom";
+
     case "meal":
       return "Meal";
+
     case "medication":
       return "Medication";
+
     default:
       return type.replaceAll("_", " ");
   }
@@ -76,7 +82,11 @@ export function UnifiedTimeline() {
     setError("");
 
     try {
-      const response = await fetch(`${API}/timeline?days=${selectedDays}`);
+      const timezoneOffset = -new Date().getTimezoneOffset();
+
+      const response = await fetch(
+        `${API}/timeline?days=${selectedDays}&timezone_offset=${timezoneOffset}`
+      );
 
       if (!response.ok) {
         throw new Error("Could not load timeline.");

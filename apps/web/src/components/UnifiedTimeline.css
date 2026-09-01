@@ -214,3 +214,11 @@
 .timeline-item--sleep .timeline-item__type {
   background: #f2f2f2;
 }
+
+.timeline-item--check_in .timeline-item__type {
+  background: #eef4ff;
+}
+
+.timeline-item--sleep .timeline-item__type {
+  background: #f2f2f2;
+}

@@ -12,10 +12,12 @@ export type DailyContextData = {
 
 type DailyContextProps = {
   refreshKey?: number;
+  onSaved?: () => void;
 };
 
 export function DailyContext({
   refreshKey = 0,
+  onSaved,
 }: DailyContextProps) {
   const [context, setContext] =
     useState<DailyContextData | null>(null);
@@ -106,9 +108,12 @@ export function DailyContext({
         await response.json();
 
       setContext(data);
+
       setSleepHours(
         data.sleep_hours ?? sleepHours
       );
+
+      onSaved?.();
     } catch (error) {
       console.error(
         "Unable to save daily context:",
