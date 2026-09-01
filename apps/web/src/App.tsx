@@ -11,6 +11,8 @@ import { MedicationManager } from "./components/MedicationManager";
 import { SymptomTracker } from "./components/SymptomTracker";
 import { MealTracker } from "./components/MealTracker";
 import { UnifiedTimeline } from "./components/UnifiedTimeline";
+import { SafetyCenter } from "./components/SafetyCenter";
+import { HealthReport } from "./components/HealthReport";
 
 type DailyCheckIn = {
   id: number;
@@ -208,7 +210,9 @@ function App() {
             <MedicationManager />
             <SymptomTracker />
             <MealTracker />
+            <SafetyCenter />
             <UnifiedTimeline />
+            <HealthReport />
           </>
         )}
       </div>

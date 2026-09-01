@@ -1,53 +1,131 @@
-from collections import Counter
-from datetime import date, datetime, time, timedelta, timezone
-
-from fastapi import APIRouter, Depends, Query
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.db.health_models import Meal, Medication, MedicationLog, Symptom
+from app.db.health_models import Allergy, SafetyRule
+from app.models.health import AllergyCreate, SafetyRuleCreate
 
-router = APIRouter(prefix="/reports", tags=["reports"])
+
+router = APIRouter(prefix="/safety", tags=["safety"])
 
 
-@router.get("/health-summary")
-def health_summary(
-    days: int = Query(default=30, ge=1, le=365),
+@router.get("/allergies")
+def list_allergies(
     db: Session = Depends(get_db),
 ):
-    start = datetime.now(timezone.utc) - timedelta(days=days)
+    return list(
+        db.scalars(
+            select(Allergy).order_by(Allergy.substance)
+        ).all()
+    )
 
-    meds = db.scalars(
-        select(Medication).where(Medication.active.is_(True)).order_by(Medication.name)
-    ).all()
 
-    logs = db.scalars(
-        select(MedicationLog).where(MedicationLog.created_at >= start)
-    ).all()
+@router.post("/allergies", status_code=201)
+def create_allergy(
+    payload: AllergyCreate,
+    db: Session = Depends(get_db),
+):
+    substance = payload.substance.strip()
 
-    symptoms = db.scalars(
-        select(Symptom).where(Symptom.occurred_at >= start)
-    ).all()
+    existing = db.scalar(
+        select(Allergy).where(
+            Allergy.substance.ilike(substance)
+        )
+    )
 
-    meals = db.scalars(
-        select(Meal).where(Meal.eaten_at >= start)
-    ).all()
+    if existing is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="This allergy is already recorded.",
+        )
 
-    symptom_counts = Counter(s.symptom for s in symptoms)
-    action_counts = Counter(log.action for log in logs)
+    allergy = Allergy(
+        substance=substance,
+        reaction=payload.reaction,
+        severity=payload.severity,
+    )
 
-    return {
-        "period_days": days,
-        "active_medications": [
-            {"name": m.name, "dosage": m.dosage, "instructions": m.instructions}
-            for m in meds
-        ],
-        "medication_log_counts": dict(action_counts),
-        "symptom_counts": dict(symptom_counts),
-        "meal_count": len(meals),
-        "note": (
-            "This report summarizes recorded information and does not establish "
-            "medical causation or diagnosis."
-        ),
-    }
+    db.add(allergy)
+    db.commit()
+    db.refresh(allergy)
+
+    return allergy
+
+
+@router.delete("/allergies/{allergy_id}", status_code=204)
+def delete_allergy(
+    allergy_id: int,
+    db: Session = Depends(get_db),
+):
+    allergy = db.get(Allergy, allergy_id)
+
+    if allergy is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Allergy not found.",
+        )
+
+    db.delete(allergy)
+    db.commit()
+
+
+@router.get("/rules")
+def list_safety_rules(
+    db: Session = Depends(get_db),
+):
+    return list(
+        db.scalars(
+            select(SafetyRule).order_by(
+                SafetyRule.severity.desc(),
+                SafetyRule.subject_a,
+            )
+        ).all()
+    )
+
+
+@router.post("/rules", status_code=201)
+def create_safety_rule(
+    payload: SafetyRuleCreate,
+    db: Session = Depends(get_db),
+):
+    rule = SafetyRule(
+        **payload.model_dump()
+    )
+
+    db.add(rule)
+    db.commit()
+    db.refresh(rule)
+
+    return rule
+
+
+@router.get("/rules/search")
+def search_safety_rules(
+    term: str,
+    db: Session = Depends(get_db),
+):
+    value = term.strip()
+
+    if not value:
+        return []
+
+    return list(
+        db.scalars(
+            select(SafetyRule)
+            .where(
+                or_(
+                    SafetyRule.subject_a.ilike(
+                        f"%{value}%"
+                    ),
+                    SafetyRule.subject_b.ilike(
+                        f"%{value}%"
+                    ),
+                )
+            )
+            .order_by(
+                SafetyRule.severity.desc(),
+                SafetyRule.subject_a,
+            )
+        ).all()
+    )
