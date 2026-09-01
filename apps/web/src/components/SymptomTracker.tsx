@@ -1,4 +1,5 @@
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import "./SymptomTracker.css";
 
 const API = "http://127.0.0.1:8000";
