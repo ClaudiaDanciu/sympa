@@ -174,3 +174,64 @@ class FollowUpPrompt(Base):
         default=lambda: datetime.now(timezone.utc),
         onupdate=lambda: datetime.now(timezone.utc),
     )
+
+class CalendarConnection(Base):
+    __tablename__ = "calendar_connections"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    provider: Mapped[str] = mapped_column(
+        String(30),
+        index=True,
+    )
+
+    account_email: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True,
+    )
+
+    access_token: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    refresh_token: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    token_expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    provider_calendar_id: Mapped[str] = mapped_column(
+        String(255),
+        default="primary",
+    )
+
+    sync_token: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
+    connected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    last_synced_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
