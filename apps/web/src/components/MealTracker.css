@@ -1,0 +1,209 @@
+.meal-tracker {
+  display: grid;
+  gap: 18px;
+}
+
+.meal-tracker__header,
+.meal-tracker__form,
+.meal-tracker__history {
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.meal-tracker__header,
+.meal-tracker__history {
+  padding: 22px;
+}
+
+.meal-tracker__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.meal-tracker__header h2 {
+  margin: 5px 0 7px;
+}
+
+.meal-tracker__muted {
+  margin: 0;
+  color: #707070;
+}
+
+.meal-tracker__form {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.meal-tracker__grid {
+  display: grid;
+  grid-template-columns: 0.8fr 1.4fr 1fr;
+  gap: 12px;
+}
+
+.meal-tracker__field {
+  display: grid;
+  gap: 7px;
+}
+
+.meal-tracker__field label {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.meal-tracker input,
+.meal-tracker select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+}
+
+.meal-tracker input:focus,
+.meal-tracker select:focus {
+  outline: 2px solid rgba(47, 111, 237, 0.15);
+  border-color: #2f6fed;
+}
+
+.meal-tracker button {
+  appearance: none;
+  border: 1px solid #d9d9d9;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.meal-tracker button:hover {
+  background: #f7f7f7;
+}
+
+.meal-tracker button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.meal-tracker__primary {
+  justify-self: start;
+  border-color: #2f6fed !important;
+  background: #2f6fed !important;
+  color: #ffffff !important;
+}
+
+.meal-tracker__primary:hover {
+  background: #245fd4 !important;
+}
+
+.meal-tracker__ingredients {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #eeeeee;
+  padding-top: 16px;
+}
+
+.meal-tracker__section-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.meal-ingredient-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr auto;
+  gap: 9px;
+  align-items: center;
+}
+
+.meal-tracker__error {
+  border: 1px solid #e9b9b9;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff6f6;
+  color: #8f2929;
+}
+
+.meal-tracker__history h3 {
+  margin: 0 0 14px;
+}
+
+.meal-tracker__list {
+  display: grid;
+  gap: 10px;
+}
+
+.meal-card {
+  border: 1px solid #ededed;
+  border-radius: 15px;
+  padding: 15px;
+  background: #ffffff;
+}
+
+.meal-card__type {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #707070;
+}
+
+.meal-card h4 {
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.meal-card time {
+  color: #707070;
+  font-size: 0.86rem;
+}
+
+.meal-card__ingredients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.meal-card__ingredients span {
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: #f4f6fb;
+  font-size: 0.82rem;
+}
+
+.meal-card > p:last-child {
+  margin: 12px 0 0;
+  color: #555555;
+}
+
+@media (max-width: 800px) {
+  .meal-tracker__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-ingredient-row {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-tracker__section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .meal-tracker__section-heading button,
+  .meal-ingredient-row button {
+    width: fit-content;
+  }
+}

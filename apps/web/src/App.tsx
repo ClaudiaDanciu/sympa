@@ -7,6 +7,10 @@ import { Patterns } from "./components/Patterns";
 import { Trends } from "./components/Trends";
 import { DailyContext } from "./components/DailyContext";
 import { CalendarToday } from "./components/CalendarToday";
+import { MedicationManager } from "./components/MedicationManager";
+import { SymptomTracker } from "./components/SymptomTracker";
+import { MealTracker } from "./components/MealTracker";
+import { UnifiedTimeline } from "./components/UnifiedTimeline";
 
 type DailyCheckIn = {
   id: number;
@@ -201,6 +205,10 @@ function App() {
               refreshKey={historyVersion}
               onSelectDay={handleSelectDay}
             />
+            <MedicationManager />
+            <SymptomTracker />
+            <MealTracker />
+            <UnifiedTimeline />
           </>
         )}
       </div>

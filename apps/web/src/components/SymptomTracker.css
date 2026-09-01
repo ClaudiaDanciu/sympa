@@ -1,0 +1,161 @@
+.symptom-tracker {
+  display: grid;
+  gap: 18px;
+}
+
+.symptom-tracker__header,
+.symptom-tracker__form,
+.symptom-tracker__history,
+.symptom-tracker__empty {
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.symptom-tracker__header,
+.symptom-tracker__history {
+  padding: 22px;
+}
+
+.symptom-tracker__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.symptom-tracker__header h2 {
+  margin: 5px 0 7px;
+}
+
+.symptom-tracker__muted {
+  margin: 0;
+  color: #707070;
+}
+
+.symptom-tracker__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  padding: 18px;
+}
+
+.symptom-tracker__field {
+  display: grid;
+  gap: 7px;
+}
+
+.symptom-tracker__field--wide {
+  grid-column: 1 / -1;
+}
+
+.symptom-tracker__field label {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.symptom-tracker input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.symptom-tracker input[type="range"] {
+  padding: 0;
+}
+
+.symptom-tracker button {
+  appearance: none;
+  border: 1px solid #d9d9d9;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.symptom-tracker__primary {
+  justify-self: start;
+  border-color: #2f6fed !important;
+  background: #2f6fed !important;
+  color: #fff !important;
+}
+
+.symptom-tracker__error {
+  border: 1px solid #e9b9b9;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff6f6;
+}
+
+.symptom-tracker__section-title h3 {
+  margin: 0 0 14px;
+}
+
+.symptom-tracker__empty {
+  padding: 18px;
+  background: #fafafa;
+}
+
+.symptom-tracker__empty p {
+  margin: 5px 0 0;
+  color: #707070;
+}
+
+.symptom-tracker__list {
+  display: grid;
+  gap: 10px;
+}
+
+.symptom-card {
+  border: 1px solid #ededed;
+  border-radius: 15px;
+  padding: 15px;
+}
+
+.symptom-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.symptom-card h4 {
+  margin: 0 0 4px;
+}
+
+.symptom-card time {
+  font-size: 0.86rem;
+  color: #707070;
+}
+
+.symptom-card__severity {
+  height: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #fff7df;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.symptom-card__note {
+  margin: 12px 0 0;
+  color: #555;
+}
+
+@media (max-width: 800px) {
+  .symptom-tracker__form {
+    grid-template-columns: 1fr;
+  }
+
+  .symptom-tracker__field--wide {
+    grid-column: auto;
+  }
+}

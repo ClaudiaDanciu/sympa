@@ -1,0 +1,216 @@
+.unified-timeline {
+  display: grid;
+  gap: 18px;
+}
+
+.unified-timeline__header,
+.unified-timeline__panel {
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  background: #fff;
+}
+
+.unified-timeline__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: end;
+  padding: 22px;
+}
+
+.unified-timeline__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.unified-timeline__header h2 {
+  margin: 5px 0 7px;
+}
+
+.unified-timeline__muted {
+  margin: 0;
+  color: #707070;
+}
+
+.unified-timeline__range {
+  display: grid;
+  gap: 6px;
+  min-width: 130px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.unified-timeline select {
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  padding: 9px 11px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.unified-timeline__error {
+  border: 1px solid #e9b9b9;
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff6f6;
+}
+
+.unified-timeline__panel {
+  padding: 22px;
+}
+
+.unified-timeline__panel strong + p {
+  margin-top: 6px;
+}
+
+.unified-timeline__days {
+  display: grid;
+  gap: 22px;
+}
+
+.timeline-day {
+  border: 1px solid #e8e8e8;
+  border-radius: 20px;
+  padding: 20px;
+  background: #fff;
+}
+
+.timeline-day h3 {
+  margin: 0 0 18px;
+  font-size: 1rem;
+}
+
+.timeline-day__items {
+  display: grid;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 18px 76px 1fr;
+  gap: 12px;
+  min-height: 76px;
+}
+
+.timeline-item__rail {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.timeline-item__dot {
+  position: relative;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  margin-top: 7px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #2f6fed;
+  box-shadow: 0 0 0 1px #2f6fed;
+}
+
+.timeline-item__line {
+  position: absolute;
+  top: 20px;
+  bottom: 0;
+  width: 1px;
+  background: #e5e5e5;
+}
+
+.timeline-item:last-child .timeline-item__line {
+  display: none;
+}
+
+.timeline-item__time {
+  padding-top: 3px;
+  color: #747474;
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
+.timeline-item__card {
+  margin-bottom: 12px;
+  border: 1px solid #ededed;
+  border-radius: 15px;
+  padding: 13px 14px;
+  background: #fff;
+}
+
+.timeline-item__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.timeline-item__type {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #f4f6fb;
+  color: #555;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.timeline-item h4 {
+  margin: 8px 0 0;
+}
+
+.timeline-item p {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.timeline-item--symptom .timeline-item__type {
+  background: #fff7df;
+}
+
+.timeline-item--medication .timeline-item__type {
+  background: #eef8f1;
+}
+
+.timeline-item--meal .timeline-item__type {
+  background: #f7f3ff;
+}
+
+.timeline-item--calendar_event .timeline-item__type {
+  background: #eef4ff;
+}
+
+@media (max-width: 700px) {
+  .unified-timeline__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeline-item {
+    grid-template-columns: 18px 1fr;
+  }
+
+  .timeline-item__time {
+    grid-column: 2;
+    padding-bottom: 5px;
+  }
+
+  .timeline-item__card {
+    grid-column: 2;
+  }
+
+  .timeline-item__rail {
+    grid-row: 1 / span 2;
+  }
+}
+
+.timeline-item--check_in .timeline-item__type {
+  background: #eef4ff;
+}
+
+.timeline-item--sleep .timeline-item__type {
+  background: #f2f2f2;
+}
