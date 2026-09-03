@@ -33,6 +33,33 @@ type MedicationLog = {
   created_at: string;
 };
 
+type MedicationGuidanceItem = {
+  id: number;
+  rule_type:
+    | "medication_medication"
+    | "medication_food"
+    | "medication_supplement"
+    | "medication_timing"
+    | string;
+  subject_a: string;
+  subject_b: string;
+  severity: string;
+  message: string;
+  source_name: string;
+  source_url: string | null;
+  source_updated_at: string | null;
+};
+
+type MedicationGuidanceResponse = {
+  active_medications: Array<{
+    id: number;
+    name: string;
+    dosage: string | null;
+  }>;
+  guidance: MedicationGuidanceItem[];
+  disclaimer: string;
+};
+
 function formatTime(value: string) {
   const [hourText, minuteText] = value.split(":");
   const date = new Date();
@@ -44,18 +71,87 @@ function formatTime(value: string) {
   });
 }
 
+function guidanceTypeLabel(ruleType: string) {
+  if (ruleType === "medication_medication") {
+    return "Medication interaction";
+  }
+
+  if (ruleType === "medication_food") {
+    return "Food consideration";
+  }
+
+  if (ruleType === "medication_supplement") {
+    return "Supplement consideration";
+  }
+
+  if (ruleType === "medication_timing") {
+    return "Timing consideration";
+  }
+
+  return "Safety consideration";
+}
+
+function guidanceSeverityClass(severity: string) {
+  const normalized = severity.trim().toLowerCase();
+
+  if (
+    normalized === "high" ||
+    normalized === "severe" ||
+    normalized === "critical"
+  ) {
+    return "medication-guidance-card--high";
+  }
+
+  if (
+    normalized === "warning" ||
+    normalized === "moderate" ||
+    normalized === "medium"
+  ) {
+    return "medication-guidance-card--warning";
+  }
+
+  return "medication-guidance-card--info";
+}
+
+function formatSourceDate(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date.toLocaleDateString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 export function MedicationManager() {
   const [medications, setMedications] = useState<Medication[]>([]);
-  const [schedules, setSchedules] = useState<Record<number, MedicationSchedule[]>>({});
+  const [schedules, setSchedules] = useState<
+    Record<number, MedicationSchedule[]>
+  >({});
   const [recentLogs, setRecentLogs] = useState<MedicationLog[]>([]);
+  const [guidance, setGuidance] =
+    useState<MedicationGuidanceResponse | null>(null);
+
   const [loading, setLoading] = useState(true);
+  const [guidanceLoading, setGuidanceLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [guidanceError, setGuidanceError] = useState("");
 
   const [name, setName] = useState("");
   const [dosage, setDosage] = useState("");
   const [instructions, setInstructions] = useState("");
-  const [scheduleTimes, setScheduleTimes] = useState<Record<number, string>>({});
+  const [scheduleTimes, setScheduleTimes] = useState<
+    Record<number, string>
+  >({});
 
   const logByMedication = useMemo(() => {
     const map: Record<number, MedicationLog | undefined> = {};
@@ -69,20 +165,53 @@ export function MedicationManager() {
     return map;
   }, [recentLogs]);
 
+  async function loadGuidance() {
+    setGuidanceLoading(true);
+    setGuidanceError("");
+
+    try {
+      const response = await fetch(
+        `${API}/safety/medication-guidance`
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          "Could not load medication safety guidance."
+        );
+      }
+
+      const data: MedicationGuidanceResponse =
+        await response.json();
+
+      setGuidance(data);
+    } catch (err) {
+      setGuidanceError(
+        err instanceof Error
+          ? err.message
+          : "Could not load medication safety guidance."
+      );
+    } finally {
+      setGuidanceLoading(false);
+    }
+  }
+
   async function loadData() {
     setError("");
 
     try {
-      const [medicationsResponse, logsResponse] = await Promise.all([
-        fetch(`${API}/medications`),
-        fetch(`${API}/medications/logs/recent`),
-      ]);
+      const [medicationsResponse, logsResponse] =
+        await Promise.all([
+          fetch(`${API}/medications`),
+          fetch(`${API}/medications/logs/recent`),
+        ]);
 
       if (!medicationsResponse.ok) {
         throw new Error("Could not load medications.");
       }
 
-      const medicationData: Medication[] = await medicationsResponse.json();
+      const medicationData: Medication[] =
+        await medicationsResponse.json();
+
       setMedications(medicationData);
 
       if (logsResponse.ok) {
@@ -106,15 +235,21 @@ export function MedicationManager() {
       setSchedules(Object.fromEntries(scheduleEntries));
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Something went wrong."
+        err instanceof Error
+          ? err.message
+          : "Something went wrong."
       );
     } finally {
       setLoading(false);
     }
   }
 
+  async function refreshMedicationArea() {
+    await Promise.all([loadData(), loadGuidance()]);
+  }
+
   useEffect(() => {
-    loadData();
+    void refreshMedicationArea();
   }, []);
 
   async function addMedication(event: FormEvent) {
@@ -145,10 +280,13 @@ export function MedicationManager() {
       setName("");
       setDosage("");
       setInstructions("");
-      await loadData();
+
+      await refreshMedicationArea();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Something went wrong."
+        err instanceof Error
+          ? err.message
+          : "Something went wrong."
       );
     } finally {
       setSaving(false);
@@ -233,12 +371,16 @@ export function MedicationManager() {
     <section className="medication-manager">
       <div className="medication-manager__header">
         <div>
-          <p className="medication-manager__eyebrow">Medications</p>
+          <p className="medication-manager__eyebrow">
+            Medications
+          </p>
+
           <h2>Your medication routine</h2>
+
           <p className="medication-manager__muted">
-            Track what you take and when. Safety information is shown
-            separately and should always be verified with a clinician or
-            pharmacist.
+            Track what you take and when. Verified medication
+            guidance appears below when SYMPA finds a matching
+            safety rule with source provenance.
           </p>
         </div>
       </div>
@@ -248,32 +390,47 @@ export function MedicationManager() {
         onSubmit={addMedication}
       >
         <div className="medication-manager__field">
-          <label htmlFor="medication-name">Medication</label>
+          <label htmlFor="medication-name">
+            Medication
+          </label>
+
           <input
             id="medication-name"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) =>
+              setName(event.target.value)
+            }
             placeholder="e.g. Metformin"
             required
           />
         </div>
 
         <div className="medication-manager__field">
-          <label htmlFor="medication-dosage">Dosage</label>
+          <label htmlFor="medication-dosage">
+            Dosage
+          </label>
+
           <input
             id="medication-dosage"
             value={dosage}
-            onChange={(event) => setDosage(event.target.value)}
+            onChange={(event) =>
+              setDosage(event.target.value)
+            }
             placeholder="e.g. 500 mg"
           />
         </div>
 
         <div className="medication-manager__field medication-manager__field--wide">
-          <label htmlFor="medication-instructions">Instructions</label>
+          <label htmlFor="medication-instructions">
+            Instructions
+          </label>
+
           <input
             id="medication-instructions"
             value={instructions}
-            onChange={(event) => setInstructions(event.target.value)}
+            onChange={(event) =>
+              setInstructions(event.target.value)
+            }
             placeholder="e.g. Take with food"
           />
         </div>
@@ -307,7 +464,9 @@ export function MedicationManager() {
           {medications.map((medication) => {
             const medicationSchedules =
               schedules[medication.id] ?? [];
-            const lastLog = logByMedication[medication.id];
+
+            const lastLog =
+              logByMedication[medication.id];
 
             return (
               <article
@@ -317,11 +476,16 @@ export function MedicationManager() {
                 <div className="medication-card__top">
                   <div>
                     <h3>{medication.name}</h3>
+
                     <p>
-                      {medication.dosage || "Dosage not added"}
+                      {medication.dosage ||
+                        "Dosage not added"}
                     </p>
+
                     {medication.instructions && (
-                      <small>{medication.instructions}</small>
+                      <small>
+                        {medication.instructions}
+                      </small>
                     )}
                   </div>
 
@@ -339,14 +503,18 @@ export function MedicationManager() {
 
                   {medicationSchedules.length > 0 ? (
                     <div className="medication-card__times">
-                      {medicationSchedules.map((schedule) => (
-                        <span
-                          className="medication-time"
-                          key={schedule.id}
-                        >
-                          {formatTime(schedule.time_of_day)}
-                        </span>
-                      ))}
+                      {medicationSchedules.map(
+                        (schedule) => (
+                          <span
+                            className="medication-time"
+                            key={schedule.id}
+                          >
+                            {formatTime(
+                              schedule.time_of_day
+                            )}
+                          </span>
+                        )
+                      )}
                     </div>
                   ) : (
                     <p className="medication-manager__muted">
@@ -357,18 +525,27 @@ export function MedicationManager() {
                   <div className="medication-card__add-time">
                     <input
                       type="time"
-                      value={scheduleTimes[medication.id] ?? ""}
+                      value={
+                        scheduleTimes[
+                          medication.id
+                        ] ?? ""
+                      }
                       onChange={(event) =>
-                        setScheduleTimes((current) => ({
-                          ...current,
-                          [medication.id]: event.target.value,
-                        }))
+                        setScheduleTimes(
+                          (current) => ({
+                            ...current,
+                            [medication.id]:
+                              event.target.value,
+                          })
+                        )
                       }
                     />
 
                     <button
                       type="button"
-                      onClick={() => addSchedule(medication.id)}
+                      onClick={() =>
+                        addSchedule(medication.id)
+                      }
                     >
                       Add time
                     </button>
@@ -380,7 +557,10 @@ export function MedicationManager() {
                     className="medication-manager__primary"
                     type="button"
                     onClick={() =>
-                      logAction(medication.id, "taken")
+                      logAction(
+                        medication.id,
+                        "taken"
+                      )
                     }
                   >
                     Taken
@@ -389,7 +569,10 @@ export function MedicationManager() {
                   <button
                     type="button"
                     onClick={() =>
-                      logAction(medication.id, "snoozed")
+                      logAction(
+                        medication.id,
+                        "snoozed"
+                      )
                     }
                   >
                     Snooze 30 min
@@ -398,7 +581,10 @@ export function MedicationManager() {
                   <button
                     type="button"
                     onClick={() =>
-                      logAction(medication.id, "skipped")
+                      logAction(
+                        medication.id,
+                        "skipped"
+                      )
                     }
                   >
                     Skip
@@ -409,6 +595,113 @@ export function MedicationManager() {
           })}
         </div>
       )}
+
+      <section className="medication-guidance">
+        <div className="medication-guidance__header">
+          <div>
+            <p className="medication-manager__eyebrow">
+              Safety guidance
+            </p>
+
+            <h3>Medication considerations</h3>
+
+            <p className="medication-manager__muted">
+              SYMPA only shows guidance stored in the verified
+              safety-rule database. It does not generate
+              medication interaction advice itself.
+            </p>
+          </div>
+        </div>
+
+        {guidanceLoading ? (
+          <p className="medication-manager__muted">
+            Checking verified guidance…
+          </p>
+        ) : guidanceError ? (
+          <div className="medication-manager__error">
+            {guidanceError}
+          </div>
+        ) : guidance &&
+          guidance.guidance.length > 0 ? (
+          <div className="medication-guidance__list">
+            {guidance.guidance.map((item) => {
+              const sourceDate = formatSourceDate(
+                item.source_updated_at
+              );
+
+              return (
+                <article
+                  className={`medication-guidance-card ${guidanceSeverityClass(
+                    item.severity
+                  )}`}
+                  key={item.id}
+                >
+                  <div className="medication-guidance-card__top">
+                    <div>
+                      <p className="medication-guidance-card__type">
+                        {guidanceTypeLabel(
+                          item.rule_type
+                        )}
+                      </p>
+
+                      <h4>
+                        {item.subject_a} +{" "}
+                        {item.subject_b}
+                      </h4>
+                    </div>
+
+                    <span className="medication-guidance-card__severity">
+                      {item.severity}
+                    </span>
+                  </div>
+
+                  <p className="medication-guidance-card__message">
+                    {item.message}
+                  </p>
+
+                  <div className="medication-guidance-card__source">
+                    <span>
+                      Source: {item.source_name}
+                      {sourceDate
+                        ? ` · updated ${sourceDate}`
+                        : ""}
+                    </span>
+
+                    {item.source_url && (
+                      <a
+                        href={item.source_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View source
+                      </a>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="medication-guidance__empty">
+            <strong>
+              No matching verified guidance found.
+            </strong>
+
+            <p>
+              That does not mean there are no possible
+              interactions. It only means SYMPA does not
+              currently have a matching verified rule stored
+              for the active medications.
+            </p>
+          </div>
+        )}
+
+        {guidance?.disclaimer && (
+          <p className="medication-guidance__disclaimer">
+            {guidance.disclaimer}
+          </p>
+        )}
+      </section>
     </section>
   );
 }
